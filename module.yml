@@ -1,0 +1,192 @@
+module:
+  code: dbadmin
+  name: Database Administration
+  version: 1.0.0
+  description: Comprehensive database administration with backups, migrations, browser, and audit logs
+  author: LinearBits
+  license: MIT
+  category: System Administration
+  icon: database
+  repository: https://github.com/linearbits/erp-dbadmin-module
+  
+  # Database tables this module uses
+  database:
+    core_tables:
+      - users
+      - tenants
+      - roles
+    tables:
+      - user_mfa_secrets
+      - user_backup_codes
+      - mfa_policies
+      - audit_logs
+      - user_sessions
+      - alert_email_config
+      - alert_config_audit
+      - backups
+      - schema_migrations
+  
+  # Permissions required
+  permissions:
+    - dbadmin.backups.view
+    - dbadmin.backups.create
+    - dbadmin.backups.restore
+    - dbadmin.backups.delete
+    - dbadmin.migrations.view
+    - dbadmin.migrations.apply
+    - dbadmin.migrations.rollback
+    - dbadmin.database.view
+    - dbadmin.database.browse
+    - dbadmin.audit.view
+    - dbadmin.audit.export
+    - dbadmin.tenants.view
+    - dbadmin.tenants.create
+    - dbadmin.tenants.edit
+    - dbadmin.tenants.manage
+  
+  # API routes
+  api:
+    prefix: /api/v1/dbadmin
+    routes:
+      # Backup routes
+      - path: /backups
+        methods: [GET, POST]
+        handler: BackupHandler
+      - path: /backups/{id}
+        methods: [GET, DELETE]
+        handler: BackupHandler
+      - path: /backups/{id}/restore
+        methods: [POST]
+        handler: BackupHandler.Restore
+      - path: /backups/{id}/download
+        methods: [GET]
+        handler: BackupHandler.Download
+      
+      # Migration routes
+      - path: /migrations/status
+        methods: [GET]
+        handler: MigrationHandler.GetStatus
+      - path: /migrations/apply
+        methods: [POST]
+        handler: MigrationHandler.Apply
+      - path: /migrations/rollback
+        methods: [POST]
+        handler: MigrationHandler.Rollback
+      
+      # Database browser routes
+      - path: /database/tables
+        methods: [GET]
+        handler: DatabaseHandler.ListTables
+      - path: /database/tables/{name}
+        methods: [GET]
+        handler: DatabaseHandler.GetTableData
+      - path: /database/tables/{name}/schema
+        methods: [GET]
+        handler: DatabaseHandler.GetTableSchema
+      
+      # Audit log routes
+      - path: /audit-logs
+        methods: [GET]
+        handler: AuditHandler.List
+      - path: /audit-logs/stats
+        methods: [GET]
+        handler: AuditHandler.GetStats
+      - path: /audit-logs/recent-failed
+        methods: [GET]
+        handler: AuditHandler.GetRecentFailed
+      - path: /audit-logs/export
+        methods: [GET]
+        handler: AuditHandler.Export
+      
+      # Tenant management routes
+      - path: /tenants
+        methods: [GET, POST]
+        handler: TenantHandler
+      - path: /tenants/{id}
+        methods: [GET, PATCH]
+        handler: TenantHandler
+      - path: /tenants/{id}/suspend
+        methods: [POST]
+        handler: TenantHandler.Suspend
+      - path: /tenants/{id}/activate
+        methods: [POST]
+        handler: TenantHandler.Activate
+  
+  # Frontend routes
+  frontend:
+    routes:
+      - path: /dbadmin
+        component: Dashboard
+        title: DB Admin Dashboard
+        permission: dbadmin.backups.view
+      - path: /dbadmin/backups
+        component: Backups
+        title: Backups
+        permission: dbadmin.backups.view
+      - path: /dbadmin/migrations
+        component: Migrations
+        title: Migrations
+        permission: dbadmin.migrations.view
+      - path: /dbadmin/database
+        component: Database
+        title: Database Browser
+        permission: dbadmin.database.view
+      - path: /dbadmin/audit-logs
+        component: AuditLogs
+        title: Audit Logs
+        permission: dbadmin.audit.view
+      - path: /dbadmin/tenants
+        component: Tenants
+        title: Tenant Management
+        permission: dbadmin.tenants.view
+  
+  # Menu items
+  menu:
+    - label: System Administration
+      icon: settings
+      path: /dbadmin
+      permission: dbadmin.backups.view
+      children:
+        - label: DB Admin Dashboard
+          path: /dbadmin
+          icon: dashboard
+          permission: dbadmin.backups.view
+        - label: Backups
+          path: /dbadmin/backups
+          icon: save
+          permission: dbadmin.backups.view
+        - label: Migrations
+          path: /dbadmin/migrations
+          icon: upload
+          permission: dbadmin.migrations.view
+        - label: Database Browser
+          path: /dbadmin/database
+          icon: database
+          permission: dbadmin.database.view
+        - label: Audit Logs
+          path: /dbadmin/audit-logs
+          icon: file-text
+          permission: dbadmin.audit.view
+        - label: Tenants
+          path: /dbadmin/tenants
+          icon: building
+          permission: dbadmin.tenants.view
+  
+  # Settings
+  settings:
+    - key: backup_retention_days
+      type: number
+      label: Backup Retention (days)
+      default: 30
+    - key: backup_compression
+      type: boolean
+      label: Enable Backup Compression
+      default: true
+    - key: enable_audit_logging
+      type: boolean
+      label: Enable Audit Logging
+      default: true
+    - key: audit_retention_days
+      type: number
+      label: Audit Log Retention (days)
+      default: 90

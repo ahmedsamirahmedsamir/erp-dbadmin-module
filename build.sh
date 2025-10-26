@@ -11,6 +11,6 @@ case "$(uname -s)" in
 esac
 
 cd handlers
-go build -buildmode=plugin -o ../dbadmin${EXT} plugin.go dbadmin_handler_simple.go types.go
+go build -buildmode=plugin -o ../dbadmin${EXT} *.go
 echo "✓ Plugin built successfully: dbadmin${EXT}"
 

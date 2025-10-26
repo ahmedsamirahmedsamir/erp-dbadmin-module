@@ -7,7 +7,7 @@ module:
   license: MIT
   category: System Administration
   icon: database
-  repository: https://github.com/linearbits/erp-dbadmin-module
+  repository: https://github.com/ahmedsamirahmedsamir/erp-dbadmin-module
   
   # Database tables this module uses
   database:
